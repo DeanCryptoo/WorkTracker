@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Work Tracker</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, Arial, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+    }
+    .app {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .subtitle {
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 40px;
+    }
+    .desc {
+      color: #94a3b8;
+      margin-top: 10px;
+      max-width: 700px;
+      line-height: 1.5;
+    }
+    .stats {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .stat-card, .panel {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 22px;
+      backdrop-filter: blur(10px);
+    }
+    .stat-card {
+      padding: 16px 18px;
+      min-width: 160px;
+    }
+    .stat-label {
+      color: #94a3b8;
+      font-size: 14px;
+    }
+    .stat-value {
+      margin-top: 8px;
+      font-size: 28px;
+      font-weight: 700;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 20px;
+    }
+    .panel {
+      padding: 18px;
+    }
+    .panel h2 {
+      margin: 0 0 16px 0;
+      font-size: 22px;
+    }
+    .add-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    input {
+      flex: 1;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: #020617;
+      color: white;
+      outline: none;
+    }
+    input::placeholder { color: #64748b; }
+    button {
+      border: none;
+      border-radius: 16px;
+      padding: 14px 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+    button:hover { transform: translateY(-1px); }
+    .add-btn { background: white; color: #0f172a; }
+    .project-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .project-item {
+      width: 100%;
+      text-align: left;
+      background: rgba(2,6,23,0.7);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: white;
+      padding: 16px;
+      border-radius: 20px;
+    }
+    .project-item.active {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.18);
+    }
+    .project-name {
+      font-size: 16px;
+      font-weight: 600;
+      word-break: break-word;
+    }
+    .project-meta {
+      margin-top: 8px;
+      color: #94a3b8;
+      font-size: 14px;
+    }
+    .running-badge {
+      display: inline-block;
+      margin-top: 10px;
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(16,185,129,0.12);
+      border: 1px solid rgba(16,185,129,0.25);
+      color: #6ee7b7;
+    }
+    .empty {
+      color: #94a3b8;
+      border: 1px dashed rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 18px;
+    }
+    .main-empty {
+      min-height: 420px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #94a3b8;
+      border: 1px dashed rgba(255,255,255,0.1);
+      border-radius: 24px;
+    }
+    .current-tag {
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+    .current-title {
+      font-size: 34px;
+      font-weight: 700;
+      word-break: break-word;
+      margin-bottom: 24px;
+    }
+    .timer-box {
+      background: rgba(2,6,23,0.7);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 28px;
+      padding: 36px 20px;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .timer-label {
+      color: #94a3b8;
+      margin-bottom: 14px;
+    }
+    .timer-value {
+      font-size: 68px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      font-variant-numeric: tabular-nums;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .start-btn { background: #34d399; color: #052e16; }
+    .stop-btn { background: #fbbf24; color: #451a03; }
+    .secondary-btn {
+      background: rgba(255,255,255,0.06);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .danger-btn {
+      background: rgba(239,68,68,0.12);
+      color: #fca5a5;
+      border: 1px solid rgba(239,68,68,0.2);
+    }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      h1 { font-size: 30px; }
+      .current-title { font-size: 28px; }
+      .timer-value { font-size: 46px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div>
+        <div class="subtitle">Work Tracker</div>
+        <h1>Track time per project</h1>
+        <div class="desc">Add projects, click one, and start or stop the timer. All data is saved directly in your browser using localStorage.</div>
+      </div>
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-label">Projects</div>
+          <div class="stat-value" id="projectCount">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total tracked</div>
+          <div class="stat-value" id="totalTracked">00:00:00</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="panel">
+        <h2>Projects</h2>
+        <div class="add-row">
+          <input id="projectInput" type="text" placeholder="Add a new project" />
+          <button class="add-btn" id="addProjectBtn">Add</button>
+        </div>
+        <div class="project-list" id="projectList"></div>
+      </div>
+
+      <div class="panel" id="detailsPanel">
+        <div class="main-empty">Select a project or create a new one.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'work-tracker-projects-v1';
+
+    let projects = [];
+    let selectedProjectId = null;
+
+    function formatDuration(ms) {
+      const totalSeconds = Math.floor(ms / 1000);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      return [hours, minutes, seconds].map(v => String(v).padStart(2, '0')).join(':');
+    }
+
+    function getProjectElapsed(project) {
+      if (project.isRunning && project.startedAt) {
+        return project.elapsedMs + (Date.now() - project.startedAt);
+      }
+      return project.elapsedMs;
+    }
+
+    function saveProjects() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+    }
+
+    function loadProjects() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          projects = JSON.parse(saved) || [];
+          if (projects.length) selectedProjectId = projects[0].id;
+        }
+      } catch (e) {
+        console.error('Failed to load projects', e);
+        projects = [];
+      }
+    }
+
+    function updateStats() {
+      document.getElementById('projectCount').textContent = projects.length;
+      const total = projects.reduce((sum, p) => sum + getProjectElapsed(p), 0);
+      document.getElementById('totalTracked').textContent = formatDuration(total);
+    }
+
+    function renderProjects() {
+      const list = document.getElementById('projectList');
+      if (!projects.length) {
+        list.innerHTML = '<div class="empty">No projects yet. Add your first one.</div>';
+        return;
+      }
+
+      list.innerHTML = projects.map(project => {
+        const isActive = project.id === selectedProjectId;
+        return `
+          <button class="project-item ${isActive ? 'active' : ''}" onclick="selectProject('${project.id}')">
+            <div class="project-name">${escapeHtml(project.name)}</div>
+            <div class="project-meta">${formatDuration(getProjectElapsed(project))}</div>
+            ${project.isRunning ? '<div class="running-badge">Running</div>' : ''}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function renderDetails() {
+      const panel = document.getElementById('detailsPanel');
+      const project = projects.find(p => p.id === selectedProjectId);
+
+      if (!project) {
+        panel.innerHTML = '<div class="main-empty">Select a project or create a new one.</div>';
+        return;
+      }
+
+      panel.innerHTML = `
+        <div class="current-tag">Current project</div>
+        <div class="current-title">${escapeHtml(project.name)}</div>
+
+        <div class="timer-box">
+          <div class="timer-label">Tracked time</div>
+          <div class="timer-value">${formatDuration(getProjectElapsed(project))}</div>
+        </div>
+
+        <div class="actions">
+          <button class="${project.isRunning ? 'stop-btn' : 'start-btn'}" onclick="toggleTimer('${project.id}')">
+            ${project.isRunning ? 'Stop timer' : 'Start timer'}
+          </button>
+          <button class="secondary-btn" onclick="resetProject('${project.id}')">Reset time</button>
+          <button class="danger-btn" onclick="deleteProject('${project.id}')">Delete project</button>
+        </div>
+      `;
+    }
+
+    function render() {
+      updateStats();
+      renderProjects();
+      renderDetails();
+    }
+
+    function addProject() {
+      const input = document.getElementById('projectInput');
+      const name = input.value.trim();
+      if (!name) return;
+
+      const project = {
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+        name,
+        elapsedMs: 0,
+        isRunning: false,
+        startedAt: null,
+        createdAt: Date.now()
+      };
+
+      projects.unshift(project);
+      selectedProjectId = project.id;
+      input.value = '';
+      saveProjects();
+      render();
+    }
+
+    function selectProject(id) {
+      selectedProjectId = id;
+      render();
+    }
+
+    function toggleTimer(id) {
+      projects = projects.map(project => {
+        if (project.id !== id) return project;
+
+        if (project.isRunning) {
+          return {
+            ...project,
+            isRunning: false,
+            elapsedMs: project.elapsedMs + (Date.now() - project.startedAt),
+            startedAt: null
+          };
+        }
+
+        return {
+          ...project,
+          isRunning: true,
+          startedAt: Date.now()
+        };
+      });
+
+      saveProjects();
+      render();
+    }
+
+    function resetProject(id) {
+      projects = projects.map(project => project.id === id
+        ? { ...project, elapsedMs: 0, isRunning: false, startedAt: null }
+        : project
+      );
+      saveProjects();
+      render();
+    }
+
+    function deleteProject(id) {
+      projects = projects.filter(project => project.id !== id);
+      if (selectedProjectId === id) {
+        selectedProjectId = projects[0] ? projects[0].id : null;
+      }
+      saveProjects();
+      render();
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    document.getElementById('addProjectBtn').addEventListener('click', addProject);
+    document.getElementById('projectInput').addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') addProject();
+    });
+
+    loadProjects();
+    render();
+    setInterval(render, 1000);
+  </script>
+</body>
+</html>
