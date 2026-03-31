@@ -329,6 +329,13 @@
           <div class="timer-value">${formatDuration(getProjectElapsed(project))}</div>
         </div>
 
+        <div style="margin-bottom: 18px; display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));">
+          <input id="manualHours" type="number" min="0" step="1" placeholder="Hours" />
+          <input id="manualMinutes" type="number" min="0" max="59" step="1" placeholder="Minutes" />
+          <input id="manualSeconds" type="number" min="0" max="59" step="1" placeholder="Seconds" />
+          <button class="secondary-btn" onclick="addManualTime('${project.id}')">Add time</button>
+        </div>
+
         <div class="actions">
           <button class="${project.isRunning ? 'stop-btn' : 'start-btn'}" onclick="toggleTimer('${project.id}')">
             ${project.isRunning ? 'Stop timer' : 'Start timer'}
@@ -400,6 +407,34 @@
         ? { ...project, elapsedMs: 0, isRunning: false, startedAt: null }
         : project
       );
+      saveProjects();
+      render();
+    }
+
+    function addManualTime(id) {
+      const hoursInput = document.getElementById('manualHours');
+      const minutesInput = document.getElementById('manualMinutes');
+      const secondsInput = document.getElementById('manualSeconds');
+
+      const hours = Math.max(0, parseInt(hoursInput.value || '0', 10) || 0);
+      const minutes = Math.max(0, parseInt(minutesInput.value || '0', 10) || 0);
+      const seconds = Math.max(0, parseInt(secondsInput.value || '0', 10) || 0);
+
+      const addedMs = ((hours * 3600) + (minutes * 60) + seconds) * 1000;
+      if (addedMs <= 0) return;
+
+      projects = projects.map(project => {
+        if (project.id !== id) return project;
+        return {
+          ...project,
+          elapsedMs: project.elapsedMs + addedMs
+        };
+      });
+
+      hoursInput.value = '';
+      minutesInput.value = '';
+      secondsInput.value = '';
+
       saveProjects();
       render();
     }
