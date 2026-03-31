@@ -253,6 +253,11 @@
 
     let projects = [];
     let selectedProjectId = null;
+    let manualTimeDraft = {
+      hours: '',
+      minutes: '',
+      seconds: ''
+    };
 
     function formatDuration(ms) {
       const totalSeconds = Math.floor(ms / 1000);
@@ -330,9 +335,9 @@
         </div>
 
         <div style="margin-bottom: 18px; display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));">
-          <input id="manualHours" type="number" min="0" step="1" placeholder="Hours" />
-          <input id="manualMinutes" type="number" min="0" max="59" step="1" placeholder="Minutes" />
-          <input id="manualSeconds" type="number" min="0" max="59" step="1" placeholder="Seconds" />
+          <input id="manualHours" type="number" min="0" step="1" placeholder="Hours" value="${manualTimeDraft.hours}" oninput="manualTimeDraft.hours = this.value" />
+          <input id="manualMinutes" type="number" min="0" max="59" step="1" placeholder="Minutes" value="${manualTimeDraft.minutes}" oninput="manualTimeDraft.minutes = this.value" />
+          <input id="manualSeconds" type="number" min="0" max="59" step="1" placeholder="Seconds" value="${manualTimeDraft.seconds}" oninput="manualTimeDraft.seconds = this.value" />
           <button class="secondary-btn" onclick="addManualTime('${project.id}')">Add time</button>
         </div>
 
@@ -430,6 +435,12 @@
           elapsedMs: project.elapsedMs + addedMs
         };
       });
+
+      manualTimeDraft = {
+        hours: '',
+        minutes: '',
+        seconds: ''
+      };
 
       hoursInput.value = '';
       minutesInput.value = '';
